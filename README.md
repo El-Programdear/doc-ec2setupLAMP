@@ -24,10 +24,10 @@ chmod 400 hoge.pem
 ```
 ServerAliveInterval 15
 
-Host kaikafukaika
-    HostName 54.64.0.130
+Host [ホスト名]
+    HostName [IPアドレス]
     User ec2-user
-    IdentityFile /Users/takumaikeda/.ssh/iq29.pem
+    IdentityFile ~/.ssh/[pem ファイル]
     RemoteForward 52698 127.0.0.1:52698
 ```
 
@@ -46,12 +46,14 @@ passwd
 # パスワードを設定
 ```
 
-### ZSH
+### ミドルウェア
 
-#### インストール
+#### ZSH
+
+##### インストール
 
 ```sh
-sudo yum install zsh
+sudo yum install zsh git
 
 # /usr/bin/zsh を確認
 cat /etc/shell
@@ -64,7 +66,7 @@ sudo emacs /etc/passwd
 [username]:x :1634231:100 :[Your Name]:/home/[username]:/bin/zsh
 ```
 
-#### ~/.zshenv
+###### ~/.zshenv
 
 ```sh
 # oh-my-zsh
@@ -94,7 +96,7 @@ export PAGER='lv -c'
 export LANG=ja_JP.UTF-8
 ```
 
-#### ~/.zshrc
+###### ~/.zshrc
 
 ```sh
 # oh-my-zsh で利用できるテーマを指定
@@ -226,9 +228,9 @@ setopt extended_glob
 WORDCHARS='*?_-.[]~=&;!#$%^(){}<>'
 ```
 
-### Emacs
+#### Emacs
 
-#### インストール
+##### インストール
 
 ```sh
 sudo yum -y install gcc make ncurses-devel
@@ -242,7 +244,7 @@ sudo make install
 sudo chmod 777 /usr/local/bin/emacs-26.1
 ```
 
-#### ~/.emacs.d/init.el
+###### ~/.emacs.d/init.el
 
 ```
 ;;
@@ -710,11 +712,133 @@ sudo chmod 777 /usr/local/bin/emacs-26.1
         ("*WL:Message*" . "Wanderlust")))
 ```
 
+#### ripgrep
+
+```sh
+sudo yum-config-manager --add-repo=https://copr.fedorainfracloud.org/coprs/carlwgeorge/ripgrep/repo/epel-7/carlwgeorge-ripgrep-epel-7.repo
+sudo yum install ripgrep
+```
+
+#### peco
+
+```sh
+cd
+sudo wget https://github.com/peco/peco/releases/download/v0.5.3/peco_linux_386.tar.gz
+sudo tar xzvf peco_linux_386.tar.gz
+sudo rm peco_linux_386.tar.gz
+cd peco_linux_386
+sudo chmod +x peco
+sudo cp peco /usr/local/bin
+cd ..
+sudo rm -r peco_linux_386/
+```
+
+##### ~/.zshrc
+
+```sh
+# fc コマンドでカレントディレクトリ以下のディレクトリを絞り込んだ後に移動する
+function find_cd() {
+    cd "$(find . -type d | peco)"
+}
+alias fc="find_cd"
+
+# fe コマンドでカレントディレクトリ以下のファイルを絞り込んだ後に emacs で開く
+function find_emacs() {
+    emacs "$(find . -type f | peco)"
+}
+alias fe="find_emacs"
+
+# ctrl-x で過去移動したディレクトリに移動
+function peco-get-destination-from-cdr() {
+  cdr -l | \
+  sed -e 's/^[[:digit:]]*[[:blank:]]*//' | \
+  peco --query "$LBUFFER"
+}
+
+function peco-cdr() {
+  local destination="$(peco-get-destination-from-cdr)"
+  if [ -n "$destination" ]; then
+    BUFFER="cd $destination"
+    zle accept-line
+  else
+    zle reset-prompt
+  fi
+}
+zle -N peco-cdr
+bindkey '^x' peco-cdr
+
+# pk で実行中のプロセスを選択して kill
+function peco-pkill() {
+  for pid in `ps aux | peco | awk '{ print $2 }'`
+  do
+    kill $pid
+    echo "Killed ${pid}"
+  done
+}
+alias pk="peco-pkill"
+```
+
+- oh my zsh を使っていたら
+
+```sh
+# ctrl-r で peco で history 検索
+function peco-select-history() {
+    local tac
+    if which tac > /dev/null; then
+        tac="tac"
+    else
+        tac="tail -r"
+    fi
+
+    BUFFER=$(\history -n 1 | \
+        eval $tac | \
+        peco --query "$LBUFFER")
+    CURSOR=$#BUFFER
+    zle clear-screen
+}
+zle -N peco-select-history
+bindkey '^r' peco-select-history
+```
+
+#### lv
+
+```sh
+sudo yum install lv -y
+```
+
+#### tig
+
+```sh
+sudo yum install tig -y
+```
+
 ### ドキュメントルート
 
 ```sh
 sudo chmod 775 /var/www/html
 sudo chown ec2-user:ec2-user /var/www/html
+```
+
+#### フレームワークを使う場合
+
+##### /etc/httpd/conf/httpd.conf
+
+- symfony3 の場合
+
+```
+# 指定したディレクトリの中で探すファイル
+DirectoryIndex index.html
+
+# 119 (昔だと 290) 行目あたりで参照するドキュメントルート設定がある
+DocumentRoot "/var/www/html/eglab/web"
+
+#
+# AllowOverride controls what directives may be placed in .htaccess files.
+# It can be "All", "None", or any combination of the keywords:
+#   Options FileInfo AuthConfig Limit
+#
+# AllowOverride None (.htaccess による書き換えの許可。151行目)
+AllowOverride All
 ```
 
 ### LAMP
