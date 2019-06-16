@@ -191,6 +191,24 @@ Defaults    secure_path = /sbin:/bin:/usr/sbin:/usr/bin:/usr/local/bin
 
 #### サーバ設定
 
+```sh
+# パッケージ自動更新
+sudo yum install yum-cron -y
+sudo sed -i "s/^apply\_updates.*$/apply\_updates = yes/g" /etc/yum/yum-cron.conf
+sudo systemctl status yum-cron
+sudo systemctl start yum-cron
+sudo systemctl enable yum-cron
+
+# タイムゾーン変更
+timedatectl status
+sudo timedatectl set-timezone Asia/Tokyo
+
+# 日本語ロケール追加
+localectl status
+sudo localectl set-locale LANG=ja_JP.UTF-8
+sudo localectl set-keymap jp106
+```
+
 ##### うるさいのでビープ音を消す
 
 ```sh:/etc/inputrc
@@ -265,34 +283,53 @@ sudo yum install -y httpd24 php70 php70-mbstring php70-mysqlnd mysql
 
 #### amazon-linux-extras を使う場合
 
-- PHP
+- サンプル 1
+  - PHP7.3
 
+```sh
+sudo amazon-linux-extras install php7.3 -y
+sudo yum install php-common php-gd php-mysqlnd php-mbstring php-pdo php-xml php-opacache php-apcu -y
+sudo systemctl start php-fpm
+sudo systemctl enable php-fpm
 ```
+
+- サンプル 2
+  - PHP7.2
+  - mariadb10.2
+
+```sh
 sudo amazon-linux-extras install -y lamp-mariadb10.2-php7.2 php7.2
-sudo yum install php-common php-gd php-mysqlnd php-mbstring php-pdo php-xml
+sudo yum install php-common php-gd php-mysqlnd php-mbstring php-pdo php-xml php-opacache php-apcu -y
 ```
 
-- Apache
+##### nginx
 
 ```sh
 sudo yum update -y
+sudo amazon-linux-extras install nginx1.12 -y
+sudo systemctl start nginx
+sudo systemctl enable nginx
+```
 
-# パッケージ自動更新
-sudo yum install yum-cron -y
-sudo sed -i "s/^apply\_updates.*$/apply\_updates = yes/g" /etc/yum/yum-cron.conf
-sudo systemctl status yum-cron
-sudo systemctl start yum-cron
-sudo systemctl enable yum-cron
+```sh:/usr/share/nginx/html/phpinfo.php
+<?php phpinfo(); ?>
+```
 
-# タイムゾーン変更
-timedatectl status
-sudo timedatectl set-timezone Asia/Tokyo
+```sh
+sudo systemctl restart php-fpm
+sudo systemctl restart nginx
+```
 
-# 日本語ロケール追加
-localectl status
-sudo localectl set-locale LANG=ja_JP.UTF-8
-sudo localectl set-keymap jp106
+`http://[IP]/phpinfo.php`
 
+##### Apache
+
+```sh
+sudo yum update -y
+sudo amazon-linux-extras install httpd  -y
+```
+
+```sh
 # apache インストール
 sudo yum install -y httpd mariadb-server
 
@@ -303,9 +340,7 @@ sudo service httpd start
 sudo chkconfig httpd on
 ```
 
-#### Apahe 設定
-
-##### PHP フレームワークを使う場合
+###### PHP フレームワークを使う場合
 
 - symfony3 の場合
 
@@ -325,7 +360,7 @@ DocumentRoot "/var/www/html/eglab/web"
 AllowOverride All
 ```
 
-##### 素の PHP
+###### 素の PHP
 
 ドキュメントルートの変更
 
