@@ -244,6 +244,8 @@ date
 
 ### パッケージ導入、LAMP 環境作成
 
+#### 自分で用意する場合
+
 - httpd24
   - apache
 - php70
@@ -261,9 +263,49 @@ sudo yum update
 sudo yum install -y httpd24 php70 php70-mbstring php70-mysqlnd mysql
 ```
 
+#### amazon-linux-extras を使う場合
+
+- PHP
+
+```
+sudo amazon-linux-extras install -y lamp-mariadb10.2-php7.2 php7.2
+sudo yum install php-common php-gd php-mysqlnd php-mbstring php-pdo php-xml
+```
+
+- Apache
+
+```sh
+sudo yum update -y
+
+# パッケージ自動更新
+sudo yum install yum-cron -y
+sudo sed -i "s/^apply\_updates.*$/apply\_updates = yes/g" /etc/yum/yum-cron.conf
+sudo systemctl status yum-cron
+sudo systemctl start yum-cron
+sudo systemctl enable yum-cron
+
+# タイムゾーン変更
+timedatectl status
+sudo timedatectl set-timezone Asia/Tokyo
+
+# 日本語ロケール追加
+localectl status
+sudo localectl set-locale LANG=ja_JP.UTF-8
+sudo localectl set-keymap jp106
+
+# apache インストール
+sudo yum install -y httpd mariadb-server
+
+# Webサーバ起動
+sudo service httpd start
+
+# サーバを停止・再起動した時に httpd は止まるので、サーバ起動時は httpd も自動起動するように設定 (check config)
+sudo chkconfig httpd on
+```
+
 #### Apahe 設定
 
-###### PHP フレームワークを使う場合
+##### PHP フレームワークを使う場合
 
 - symfony3 の場合
 
@@ -283,7 +325,7 @@ DocumentRoot "/var/www/html/eglab/web"
 AllowOverride All
 ```
 
-###### 素の PHP
+##### 素の PHP
 
 ドキュメントルートの変更
 
@@ -332,8 +374,6 @@ sudo service httpd start
 Starting httpd:                                            [  OK  ]
 ```
 
-#### PHP 設定
-
 - 下記ファイルで `Dynamic` で検索する
   - `extension=mbstring` を追加
 
@@ -380,44 +420,4 @@ mbstring.language = Japanese # ここのコメントアウトを外す
 ; If empty, default_charset or internal_encoding or iconv.internal_encoding is used.
 ; The precedence is: default_charset < internal_encoding < iconv.internal_encoding
 mbstring.internal_encoding = UTF-8 # ここのコメントアウトを外して、UTF-8 を設定する
-```
-
-### LAMP
-
-#### PHP
-
-```
-sudo amazon-linux-extras install -y lamp-mariadb10.2-php7.2 php7.2
-sudo yum install php-common php-gd php-mysqlnd php-mbstring php-pdo php-xml
-```
-
-#### Apache
-
-```sh
-sudo yum update -y
-
-# パッケージ自動更新
-sudo yum install yum-cron -y
-sudo sed -i "s/^apply\_updates.*$/apply\_updates = yes/g" /etc/yum/yum-cron.conf
-sudo systemctl status yum-cron
-sudo systemctl start yum-cron
-sudo systemctl enable yum-cron
-
-# タイムゾーン変更
-timedatectl status
-sudo timedatectl set-timezone Asia/Tokyo
-
-# 日本語ロケール追加
-localectl status
-sudo localectl set-locale LANG=ja_JP.UTF-8
-sudo localectl set-keymap jp106
-
-# apache インストール
-sudo yum install -y httpd mariadb-server
-
-# Webサーバ起動
-sudo service httpd start
-
-# サーバを停止・再起動した時に httpd は止まるので、サーバ起動時は httpd も自動起動するように設定 (check config)
-sudo chkconfig httpd on
 ```
