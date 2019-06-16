@@ -14,10 +14,10 @@
 2. 左サイドメニューから VPC 設定の選択を選ぶ
    2.1. 今回は「1 個のパブリックサブネットを持つ VPC」
 3. IPv4 CIDR ブロック を `10.0.0.0/16` に設定 (デフォルトのまま)
-4. VPC 名: 任意の名前 -> ex) `udemy-aws-14days`
+4. VPC 名: 任意の名前
 5. パブリックサブネットの IPv4 CIDR: `10.0.11.0/24`
    5.1. AZ: `1a` を選択する
-   5.2. サブネット名: 任意の名前 -> ex) `udemy-aws-14days-public-subnet-1a`
+   5.2. サブネット名: 任意の名前 -> ex) `[VPC 名]-public-subnet-1a`
 6. **サービスエンドポイント**
    VPC の中にエンドポイントを置いて、そこにアクセスすれば S3 に繋がるみたいな設定ができる
 7. DNS ホスト名を有効化: 「はい」を選択
@@ -29,11 +29,11 @@
 
 #### 左サイドバー > サブネット
 
-- 先程作った VPC から追加でパブリックサブネット `udemy-aws-14days-public-subnet-1c` を作成する
+- 先程作った VPC から追加でパブリックサブネット `[VPC 名]-public-subnet-1c` を作成する
 - これはロードバランサーで使うパブリックサブネット
 
-  - 名前タグ: `udemy-aws-14days-public-subnet-1c`
-  - **VPC の項目はさっき作った `udemy-aws-14days` をセレクトボックスから選ぶようにする**
+  - 名前タグ: `[VPC 名]-public-subnet-1c`
+  - **VPC の項目はさっき作った VPC をセレクトボックスから選ぶようにする**
   - AZ: `1c` を選択
   - CIDR: `10.0.12.0/24`
 
@@ -49,7 +49,7 @@
 
 #### 左サイドバー > ルートテーブル
 
-名前を `udemy-aws-14days-public-rt` などと明示的にしておくとわかりやすい
+名前を `[VPC 名]-public-rt` などと明示的にしておくとわかりやすい
 
 ##### 左サイドバー > インターネットゲートウェイ
 
@@ -85,7 +85,6 @@ EC2 マネジメントコンソールでも**東京リージョン**になって
 - Web-sg: Web セキュリティグループ名で作成
   - SSH(22) は特定の IP
     - [What Is My IP Address? - ifconfig.me](https://ifconfig.me/)
-    - Mac mini なら `115.163.9.159`
   - HTTP(80) は FULL オープン
 
 ##### セキュリティグループ名を変更したいとき
@@ -99,10 +98,8 @@ EC2 マネジメントコンソールでも**東京リージョン**になって
 #### ログイン
 
 ```sh
-chmod 400 udemy-aws-14days.pem
-
-# IPv4 パブリック IP をコピー
-ssh -i udemy-aws-14days.pem ec2-user@13.230.126.202
+chmod 400 [pem ファイル]
+ssh -i [pem ファイル] ec2-user@[IPv4 パブリック IP]
 ```
 
 ##### ~/.ssh/config
@@ -192,35 +189,6 @@ sudo visudo
 Defaults    secure_path = /sbin:/bin:/usr/sbin:/usr/bin:/usr/local/bin
 ```
 
-### ドキュメントルート
-
-```sh
-sudo chmod 775 /var/www/html
-sudo chown ec2-user:ec2-user /var/www/html
-```
-
-#### PHP フレームワークを使う場合
-
-##### /etc/httpd/conf/httpd.conf
-
-- symfony3 の場合
-
-```
-# 指定したディレクトリの中で探すファイル
-DirectoryIndex index.html
-
-# 119 (昔だと 290) 行目あたりで参照するドキュメントルート設定がある
-DocumentRoot "/var/www/html/eglab/web"
-
-#
-# AllowOverride controls what directives may be placed in .htaccess files.
-# It can be "All", "None", or any combination of the keywords:
-#   Options FileInfo AuthConfig Limit
-#
-# AllowOverride None (.htaccess による書き換えの許可。151行目)
-AllowOverride All
-```
-
 #### サーバ設定
 
 ##### うるさいのでビープ音を消す
@@ -295,6 +263,35 @@ sudo yum install -y httpd24 php70 php70-mbstring php70-mysqlnd mysql
 
 #### Apahe 設定
 
+###### PHP フレームワークを使う場合
+
+- symfony3 の場合
+
+```:/etc/httpd/conf/httpd.conf
+# 指定したディレクトリの中で探すファイル
+DirectoryIndex index.html
+
+# 119 (昔だと 290) 行目あたりで参照するドキュメントルート設定がある
+DocumentRoot "/var/www/html/eglab/web"
+
+#
+# AllowOverride controls what directives may be placed in .htaccess files.
+# It can be "All", "None", or any combination of the keywords:
+#   Options FileInfo AuthConfig Limit
+#
+# AllowOverride None (.htaccess による書き換えの許可。151行目)
+AllowOverride All
+```
+
+###### 素の PHP
+
+ドキュメントルートの変更
+
+```sh
+sudo chmod 775 /var/www/html
+sudo chown ec2-user:ec2-user /var/www/html
+```
+
 - 下記ファイルで `DirectoryIndex` で検索する
 
 ```:/etc/httpd/conf/httpd.conf
@@ -304,7 +301,7 @@ sudo yum install -y httpd24 php70 php70-mbstring php70-mysqlnd mysql
 </IfModule>
 ```
 
-- `ServerName` で検索して `ServerName udemy-aws-14days-web-1a` を記述する
+- `ServerName` で検索して `ServerName [VPN 名]-web-1a` を記述する
 
 ```:/etc/httpd/conf/httpd.conf
 #
