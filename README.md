@@ -285,10 +285,11 @@ sudo yum install -y httpd24 php70 php70-mbstring php70-mysqlnd mysql
 
 - サンプル 1
   - PHP7.3
+  - mysql
 
 ```sh
 sudo amazon-linux-extras install php7.3 -y
-sudo yum install php-common php-gd php-mysqlnd php-mbstring php-pdo php-xml php-opacache php-apcu -y
+sudo yum install mysql php-common php-gd php-mysqlnd php-mbstring php-pdo php-xml php-opacache php-apcu php-fpm -y
 sudo systemctl start php-fpm
 sudo systemctl enable php-fpm
 ```
@@ -299,7 +300,7 @@ sudo systemctl enable php-fpm
 
 ```sh
 sudo amazon-linux-extras install -y lamp-mariadb10.2-php7.2 php7.2
-sudo yum install php-common php-gd php-mysqlnd php-mbstring php-pdo php-xml php-opacache php-apcu -y
+sudo yum install php-common php-gd php-mysqlnd php-mbstring php-pdo php-xml php-opacache php-apcu php-fpm -y
 ```
 
 ##### nginx
@@ -321,6 +322,21 @@ sudo systemctl restart nginx
 ```
 
 `http://[IP]/phpinfo.php`
+
+```sh:/etc/nginx/nginx.conf
+location / {
+    root /var/www/html/wordpress;
+    index index.php;
+}
+```
+
+```sh
+sudo sed -i "s/user = apache/user = nginx/" /etc/php-fpm.d/www.conf
+sudo sed -i "s/group = apache/group = nginx/" /etc/php-fpm.d/www.conf
+
+# 文法チェック
+sudo nginx -t
+```
 
 ##### Apache
 
