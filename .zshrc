@@ -2,7 +2,7 @@
 ZSH_THEME="candy"
 
 # oh my zsh で利用できるプラグインを指定
-plugins=(git brew brew-cask cdd gem git rbenv vagrant zsh-syntax-highlighting zsh-completions)
+plugins=(git brew gem git rbenv vagrant zsh-syntax-highlighting zsh-completions)
 
 # oh-my-zsh に変更を適用
 source $ZSH/oh-my-zsh.sh
