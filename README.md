@@ -124,7 +124,7 @@ passwd
 # パスワードを設定
 ```
 
-### ミドルウェア
+### ミドルウェア (1)
 
 ```sh
 # 最新の EPEL リポジトリ
@@ -154,26 +154,32 @@ sudo emacs /etc/passwd
 ###### oh-my-zsh 導入
 
 ```sh
-./install_oh_my_zsh
+cd ~/.ssh
+ssh-keygen
+# GitHub に鍵登録
+cat id_rsa.pub
+cd
+git clone git@github.com:El-Programdear/doc-ec2setupLAMP.git
+chmod 777 install_oh_my_zsh.sh
+./install_oh_my_zsh.sh
+mv .zshenv ~
+mv .zsherc ~
+cd
+# 編集
+emacs ~/.zshenv
+emacs ~/.zshrc
 ```
 
-###### ~/.zshenv
-
-`.zshenv` 配置
-
-###### ~/.zshrc
-
-`.zshrc` 配置
-
-#### Emacs
-
-##### インストール
+### ミドルウェア (2)
 
 ```sh
+chmod 777 install_middleware.sh
 ./install_middleware.sh
 ```
 
-###### ~/.emacs.d/init.el
+#### Emacs
+
+##### ~/.emacs.d/init.el
 
 `~/.emacs.d` に `init.el` を配置する
 
@@ -217,12 +223,16 @@ set bell-style none
 
 ##### ホスト名の変更
 
-```sh:/etc/sysconfig/network
+`sudo emacs /etc/sysconfig/network`
+
+```sh
 # HOSTNAME=localhost.localdomain
 HOSTNAME=udemy-aws-14days-web-1a
 ```
 
-```sh:/etc/hosts
+`sudo emacs /etc/hosts`
+
+```sh
 # 先頭行に追加する
 127.0.0.1   udemy-aws-14days-web-1a localhost localhost.localdomain localhost4 localhost4.localdomain4
 ```
@@ -239,7 +249,9 @@ sudo reboot
 
 ##### 言語、時刻設定
 
-```:/etc/sysconfig/i18n
+`sudo emacs /etc/sysconfig/i18n`
+
+```
 # LANG=en_US.UTF-8
 LANG=ja_JP.UTF-8
 ```
@@ -248,7 +260,9 @@ LANG=ja_JP.UTF-8
 sudo cp /usr/share/zoneinfo/Japan /etc/localtime
 ```
 
-```:/etc/sysconfig/clock
+`sudo emacs /etc/sysconfig/clock`
+
+```
 # ZONE="UTC"
 ZONE="Asia/Tokyo"
 UTC=true
@@ -303,7 +317,7 @@ sudo amazon-linux-extras install -y lamp-mariadb10.2-php7.2 php7.2
 sudo yum install php-common php-gd php-mysqlnd php-mbstring php-pdo php-xml php-opacache php-apcu php-fpm -y
 ```
 
-##### nginx
+##### nginx を使う場合
 
 ```sh
 sudo yum update -y
@@ -338,11 +352,14 @@ sudo sed -i "s/group = apache/group = nginx/" /etc/php-fpm.d/www.conf
 sudo nginx -t
 ```
 
-##### Apache
+##### Apache を使う場合
 
 ```sh
 sudo yum update -y
-sudo amazon-linux-extras install httpd  -y
+sudo amazon-linux-extras install httpd24  -y
+
+# もしくは
+sudo yum install httpd -y
 ```
 
 ```sh
