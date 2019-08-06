@@ -140,15 +140,11 @@ sudo yum install -y zsh git lv tig ripgrep
 ##### インストール
 
 ```sh
-# /usr/bin/zsh を確認
-cat /etc/shells
-sudo emacs /etc/passwd
-```
+# util-linux-user をインストール
+sudo yum install util-linux-user -y
 
-```sh:/etc/passwd
-# 以下に変更する。間違えたらログインできなくなるので注意
-# 間違えてもやり直せるよう、セッションを切らずに ZSH の変更確認を行う
-[username]:x :1634231:100 :[Your Name]:/home/[username]:/usr/bin/zsh
+# zsh に変更する
+chsh -s /usr/bin/zsh
 ```
 
 ###### oh-my-zsh 導入
