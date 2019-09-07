@@ -295,11 +295,11 @@ sudo yum install -y httpd24 php70 php70-mbstring php70-mysqlnd mysql
 
 - サンプル 1
   - PHP7.3
-  - mysql
+  - MariaDB (MYSQL)
 
 ```sh
 sudo amazon-linux-extras install php7.3 -y
-sudo yum install mysql php-common php-gd php-mysqlnd php-mbstring php-pdo php-xml php-opacache php-apcu php-fpm -y
+sudo yum install mysql mariadb-server php-common php-gd php-mysqlnd php-mbstring php-pdo php-xml php-opacache php-apcu php-fpm php-intl.x86_64 php-zip -y
 sudo systemctl start php-fpm
 sudo systemctl enable php-fpm
 ```
@@ -360,7 +360,7 @@ sudo yum install httpd -y
 
 ```sh
 # apache インストール
-sudo yum install -y httpd mariadb-server
+sudo yum install -y httpd
 
 # Webサーバ起動
 sudo service httpd start
